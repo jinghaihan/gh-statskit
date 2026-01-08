@@ -19,9 +19,24 @@ export interface CommandOptions {
    */
   baseUrl?: string
   /**
+   * Whether to include merged pull requests
+   */
+  mergedPullRequests?: boolean
+  /**
+   * Whether to include discussions
+   */
+  discussions?: boolean
+  /**
+   * Whether to include discussions answers
+   */
+  discussionsAnswers?: boolean
+  /**
    * GitHub Gist ID
    */
   gistId?: string
+  /**
+   * Whether to skip the confirmation prompt
+   */
   yes?: boolean
 }
 
@@ -42,4 +57,83 @@ export interface PullRequest {
   number: number
   type: 'User' | 'Organization'
   stars: number
+}
+
+export interface Stats {
+  user: User
+  contributions: PullRequest[]
+  commits: ContributionsCollection
+  reviews: ContributionsCollection
+  repositoriesContributedTo: RepositoriesContributedTo
+  pullRequests: PullRequestsData
+  mergedPullRequests?: PullRequestsData
+  openIssues: IssuesData
+  closedIssues: IssuesData
+  followers: FollowersData
+  repositoryDiscussions?: RepositoryDiscussionsData
+  repositoryDiscussionComments?: RepositoryDiscussionCommentsData
+  repositories: RepositoriesData
+}
+
+export interface GraphQLStatsResponse {
+  user: GraphQLUser
+}
+
+export interface GraphQLUser {
+  name: string
+  login: string
+  commits: ContributionsCollection
+  reviews: ContributionsCollection
+  repositoriesContributedTo: RepositoriesContributedTo
+  pullRequests: PullRequestsData
+  mergedPullRequests?: PullRequestsData
+  openIssues: IssuesData
+  closedIssues: IssuesData
+  followers: FollowersData
+  repositoryDiscussions?: RepositoryDiscussionsData
+  repositoryDiscussionComments?: RepositoryDiscussionCommentsData
+  repositories: RepositoriesData
+}
+
+export interface ContributionsCollection {
+  totalCommitContributions?: number
+  totalPullRequestReviewContributions?: number
+}
+
+export interface RepositoriesContributedTo {
+  totalCount: number
+}
+
+export interface PullRequestsData {
+  totalCount: number
+}
+
+export interface IssuesData {
+  totalCount: number
+}
+
+export interface FollowersData {
+  totalCount: number
+}
+
+export interface RepositoryDiscussionsData {
+  totalCount: number
+}
+
+export interface RepositoryDiscussionCommentsData {
+  totalCount: number
+}
+
+export interface RepositoriesData {
+  totalCount: number
+  nodes: Repository[]
+}
+
+export interface Repository {
+  name: string
+  stargazers: StargazersData
+}
+
+export interface StargazersData {
+  totalCount: number
 }

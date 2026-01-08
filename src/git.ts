@@ -1,8 +1,19 @@
-import type { Options, PullRequest, User } from './types'
+import type { GraphQLStatsResponse, GraphQLUser, Options, PullRequest, Stats, User } from './types'
+import { execa } from 'execa'
 import pRetry from 'p-retry'
+import { GRAPHQL_STATS_QUERY } from './constants'
 import { getOctoKit } from './utils'
 
 const RepoCache = new Map()
+
+export async function readTokenFromGitHubCli() {
+  try {
+    return await execa('gh', ['auth', 'token'])
+  }
+  catch {
+    return ''
+  }
+}
 
 export async function getRepo(owner: string, name: string, token: string) {
   if (RepoCache.has(`${owner}/${name}`))
@@ -75,16 +86,28 @@ export async function getPullRequests(username: string, options: Options): Promi
   return prs
 }
 
-export async function readTokenFromGitHubCli() {
-  try {
-    return await execCommand('gh', ['auth', 'token'])
+export async function getGraphQLStats(user: User, options: Options): Promise<GraphQLUser> {
+  const octokit = getOctoKit(options.token)
+
+  const variables = {
+    login: user.username,
+    after: null,
+    includeMergedPullRequests: options.mergedPullRequests,
+    includeDiscussions: options.discussions,
+    includeDiscussionsAnswers: options.discussionsAnswers,
   }
-  catch {
-    return ''
-  }
+
+  const response = await pRetry(
+    async () => {
+      return await octokit.graphql(GRAPHQL_STATS_QUERY, variables)
+    },
+    { retries: 3 },
+  )
+  const { user: graphqlUser } = response as GraphQLStatsResponse
+  return graphqlUser
 }
 
-export async function updateGist(data: Record<string, unknown>, gistId: string, token: string): Promise<string> {
+export async function updateGist(data: Stats, gistId: string, token: string): Promise<string> {
   const octokit = getOctoKit(token)
   const existingGist = await pRetry(
     async () => {
@@ -94,8 +117,8 @@ export async function updateGist(data: Record<string, unknown>, gistId: string, 
     },
     { retries: 3 },
   )
-  if (!existingGist.data.files?.[`contributions.json`])
-    throw new Error('Gist does not contain contributions.json file')
+  if (!existingGist.data.files?.[`stats.json`])
+    throw new Error('Gist does not contain stats.json file')
 
   const content = JSON.stringify(data, null, 2)
   const response = await pRetry(
@@ -103,7 +126,7 @@ export async function updateGist(data: Record<string, unknown>, gistId: string, 
       return await octokit.request('PATCH /gists/{gist_id}', {
         gist_id: gistId,
         files: {
-          'contributions.json': {
+          'stats.json': {
             content,
           },
         },
@@ -113,10 +136,4 @@ export async function updateGist(data: Record<string, unknown>, gistId: string, 
   )
 
   return response.data.html_url!
-}
-
-async function execCommand(cmd: string, args: string[]) {
-  const { execa } = await import('execa')
-  const res = await execa(cmd, args)
-  return res.stdout.trim()
 }

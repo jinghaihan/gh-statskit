@@ -73,6 +73,7 @@ jobs:
 This project is inspired by:
 - [releases.antfu.me](https://github.com/antfu/releases.antfu.me) - @[Anthony Fu](https://github.com/antfu)
 - [my-pull-requests](https://github.com/atinux/my-pull-requests) - @[Sébastien Chopin](https://github.com/atinux)
+- [github-readme-stats](https://github.com/anuraghazra/github-readme-stats) - @[anuraghazra](github-readme-stats)
 
 ## License
 
