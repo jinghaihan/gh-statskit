@@ -1,7 +1,7 @@
 {
   "name": "gh-statskit",
   "type": "module",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0-alpha.1",
   "packageManager": "pnpm@10.27.0",
   "description": "A CLI to export GitHub stats and publish to a GitHub Gist.",
   "author": "jinghaihan",
