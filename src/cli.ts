@@ -6,15 +6,14 @@ import type {
   Options,
   PullRequest,
 } from './types'
-import { writeFile } from 'node:fs/promises'
 import process from 'node:process'
 import * as p from '@clack/prompts'
 import c from 'ansis'
 import { cac } from 'cac'
-import { join } from 'pathe'
 import { resolveConfig } from './config'
 import { NAME, VERSION } from './constants'
-import { getGraphQLStats, getPullRequests, getUser, updateGist } from './git'
+import { generate } from './generator'
+import { getGraphQLStats, getPullRequests, getUser } from './git'
 import { calculateRank } from './rank'
 
 try {
@@ -28,6 +27,7 @@ try {
     .option('--per-page <count>', 'GitHub API per page count', { default: 50 })
     .option('--base-url <url>', 'GitHub base URL', { default: 'github.com' })
     .option('--gist-id <id>', 'GitHub Gist ID')
+    .option('--gist-filename <filename>', 'GitHub Gist filename', { default: 'github-stats.json' })
     .allowUnknownOptions()
     .action(async (options: Partial<CommandOptions>) => {
       p.intro(`${c.yellow`${NAME} `}${c.dim`v${VERSION}`}`)
@@ -109,26 +109,4 @@ async function fetchStats(user: GitHubUser, pullRequests: PullRequest[], options
   }
   spinner.stop('stats retrieved')
   return stats
-}
-
-async function generate(data: GitHubStats, options: Options) {
-  const filepath = join(options.cwd, 'github-stats.json')
-  await writeFile(filepath, JSON.stringify(data, null, 2))
-
-  if (!options.gistId) {
-    p.outro(`${c.green('✓')} ${c.dim('Local file:')} ${filepath}`)
-    return
-  }
-
-  const spinner = p.spinner()
-  try {
-    spinner.start('updating gist')
-    const gistUrl = await updateGist(data, options.gistId, options.token)
-    spinner.stop('gist updated successfully')
-    p.outro(`${c.green('✓')} ${c.dim('Gist URL:')} ${gistUrl}`)
-  }
-  catch (error) {
-    spinner.stop('failed to update gist')
-    p.outro(`${c.red('✗')} ${error instanceof Error ? error.message : 'Unknown error'}`)
-  }
 }

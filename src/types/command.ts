@@ -23,6 +23,10 @@ export interface CommandOptions {
    */
   gistId?: string
   /**
+   * GitHub Gist filename
+   */
+  gistFilename?: string
+  /**
    * Whether to skip the confirmation prompt
    */
   yes?: boolean

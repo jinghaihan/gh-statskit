@@ -9,6 +9,7 @@ export const DEFAULT_OPTIONS: Partial<CommandOptions> = {
   apiVersion: '2022-11-28',
   perPage: 50,
   baseUrl: 'github.com',
+  gistFilename: 'github-stats.json',
   yes: false,
 }
 

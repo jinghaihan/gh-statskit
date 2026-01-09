@@ -115,7 +115,9 @@ export async function getGraphQLStats(user: GitHubUser, options: Options): Promi
   return graphqlUser
 }
 
-export async function updateGist(data: GitHubStats, gistId: string, token: string): Promise<string> {
+export async function updateGist(data: GitHubStats, options: Options): Promise<string> {
+  const { gistId, gistFilename, token } = options
+
   const octokit = getOctoKit(token)
   const existingGist = await pRetry(
     async () => {
@@ -125,8 +127,8 @@ export async function updateGist(data: GitHubStats, gistId: string, token: strin
     },
     { retries: 3 },
   )
-  if (!existingGist.data.files?.[`github-stats.json`])
-    throw new Error('Gist does not contain github-stats.json file')
+  if (!existingGist.data.files?.[gistFilename])
+    throw new Error(`Gist does not contain ${gistFilename} file`)
 
   const content = JSON.stringify(data, null, 2)
   const response = await pRetry(
@@ -134,7 +136,7 @@ export async function updateGist(data: GitHubStats, gistId: string, token: strin
       return await octokit.request('PATCH /gists/{gist_id}', {
         gist_id: gistId,
         files: {
-          'github-stats.json': {
+          [gistFilename]: {
             content,
           },
         },

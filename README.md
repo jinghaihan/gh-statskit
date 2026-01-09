@@ -29,7 +29,7 @@ npx gh-statskit --gist-id id
 ### GitHub CI usage
 
 > [!IMPORTANT]
-> Your Gist must already exist and contain a file named `github-stats.json`. The tool will update this file with your latest stats. If the file doesn't exist, the tool will throw an error.
+> Your Gist must already exist and contain a file with the specified filename (default: `github-stats.json`). You can customize the filename using the `--gist-filename` option.
 
 **Set up GitHub Actions** to automatically sync your stats on a schedule:
 
@@ -66,7 +66,7 @@ jobs:
 **Configure secrets in your repository**:
    - Go to your repository Settings > Secrets and variables > Actions
    - Add `GH_PAT` as a repository secret (your GitHub Personal Access Token)
-   - Add `GIST_ID` as a repository secret (the ID of your Gist containing `github-stats.json`)
+   - Add `GIST_ID` as a repository secret (the ID of your Gist containing the configured filename, default: `github-stats.json`)
 
 ## Credits
 
